@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quick Math Solver (Multiple Solutions)</title>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #222;
+    margin: 0;
+    padding: 30px 15px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  #app {
+    background: #fff;
+    padding: 30px 35px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 12px 25px rgb(0 0 0 / 0.1);
+    border-radius: 12px;
+  }
+
+  h1 {
+    margin: 0 0 15px 0;
+    font-weight: 700;
+    color: #34495e;
+    text-align: center;
+  }
+
+  p.instructions {
+    font-size: 0.9rem;
+    color: #586069;
+    margin-bottom: 30px;
+    line-height: 1.4;
+  }
+  p.instructions strong {
+    color: #2c3e50;
+  }
+
+  form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    min-width: 140px;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 1.8px solid #ccc;
+    transition: border-color 0.25s ease;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 8px #2980b9aa;
+  }
+
+  button {
+    background: #2980b9;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    flex-shrink: 0;
+  }
+  button:hover {
+    background: #1f6391;
+  }
+  button:active {
+    background: #154a68;
+  }
+
+  #results {
+    font-size: 1.1rem;
+    min-height: 70px;
+    border-top: 2px solid #e0e0e0;
+    padding-top: 20px;
+  }
+
+  .expr-box {
+    margin: 12px 0;
+    background: #eef6fc;
+    padding: 12px 18px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.25rem;
+    color: #2c3e50;
+  }
+  .expr-box button {
+    font-size: 0.9rem;
+    background: #27ae60;
+    padding: 6px 14px;
+    border-radius: 6px;
+  }
+  .expr-box button:hover {
+    background: #1e874b;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    form {
+      flex-direction: column;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.2rem;
+    }
+    input[type="text"] {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <h1>Quick Math Solver (Multiple Solutions)</h1>
+  <p class="instructions">
+    Enter <strong>4 or 5 numbers</strong> separated by spaces, commas, or no separator (e.g., <em>2 3 4 5</em>, <em>2,3,4,5</em>, or <em>2345</em>).<br />
+    Enter the <strong>target value</strong> (2 digits for 4 numbers, 3 digits for 5 numbers).
+  </p>
+
+  <form onsubmit="event.preventDefault(); solve();">
+    <input
+      id="numbers"
+      type="text"
+      placeholder="Numbers (e.g. 1 2 3 4 or 1234)"
+      autocomplete="off"
+      required
+      maxlength="10"
+      aria-label="Input numbers"
+    />
+    <input
+      id="target"
+      type="text"
+      placeholder="Target value"
+      autocomplete="off"
+      required
+      aria-label="Input target value"
+    />
+    <button type="submit" aria-label="Solve">Solve</button>
+  </form>
+
+  <div id="results" aria-live="polite"></div>
+</div>
+
+<script>
+  const EPSILON = 1e-6;
+
+  function fact(n) {
+    if (n < 0 || n > 33 || n !== Math.floor(n)) return null;
+    const factorials = [
+      1, 1, 2, 6, 24, 120, 720, 5040, 40320,
+      362880, 3628800, 39916800, 479001600,
+      6227020800, 87178291200, 1307674368000,
+      20922789888000, 355687428096000,
+      6402373705728000, 121645100408832000,
+      2432902008176640000, 51090942171709440000,
+      1124000727777607680000, 25852016738884976640000,
+      620448401733239439360000, 15511210043330985984000000,
+      403291461126605635584000000, 10888869450418352160768000000,
+      304888344611713860501504000000,
+      8841761993739701954543616000000,
+      265252859812191058636308480000000,
+      8222838654177922817725562880000000,
+      263130836933693530167218012160000000,
+      8683317618811886495518194401280000000
+    ];
+    return factorials[n];
+  }
+
+  function isTarget(x, target) {
+    return Math.abs(x - target) < EPSILON;
+  }
+
+  function isInteger(x) {
+    return Math.abs(x - Math.round(x)) < EPSILON;
+  }
+
+  function applyUnary(node) {
+    const results = [node];
+    const val = node.value;
+    const expr = node.expr;
+    const depth = node.rootDepth || 0;
+
+    if (val >= 0 && depth < 2)
+      results.push({ value: Math.sqrt(val), expr: `\\sqrt{${expr}}`, rootDepth: depth + 1 });
+
+    const f = fact(val);
+    if (f !== null)
+      results.push({ value: f, expr: `(${expr})!`, rootDepth: depth });
+
+    return results;
+  }
+
+  function applyNthRoots(baseNode, rootNode) {
+    const results = [];
+    const r = rootNode.value;
+    const rExpr = rootNode.expr;
+    const baseDepth = baseNode.rootDepth || 0;
+
+    if (!isInteger(r) || r < 2 || baseDepth >= 2) return [];
+    if (baseNode.value < 0 && r % 2 === 0) return [];
+
+    const root = Math.pow(baseNode.value, 1 / r);
+    const expr = `\\sqrt[${rExpr}]{${baseNode.expr}}`;
+    results.push({ value: root, expr, rootDepth: baseDepth + 1 });
+
+    return results;
+  }
+
+  function isSafeExponent(base, exp) {
+    if (base < 0 && !isInteger(exp)) return false;
+    return Math.abs(base) <= 1e5 && Math.abs(exp) <= 10;
+  }
+
+  function dfs(nodes, target, solutions, memo, best) {
+    if (nodes.length === 1) {
+      const diff = Math.abs(nodes[0].value - target);
+      if (diff < best.diff) {
+        best.diff = diff;
+        best.expr = nodes[0].expr;
+      }
+      if (diff < EPSILON) {
+        solutions.add(nodes[0].expr);
+      }
+      return false; // Continue searching for all solutions
+    }
+
+    const key = nodes.map(n => n.value).sort((a, b) => a - b).join(",");
+    if (memo.has(key)) return false;
+    memo.add(key);
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = 0; j < nodes.length; j++) {
+        if (i === j) continue;
+        const rest = nodes.filter((_, k) => k !== i && k !== j);
+
+        for (const a of applyUnary(nodes[i])) {
+          for (const b of applyUnary(nodes[j])) {
+            const maxDepth = Math.max(a.rootDepth || 0, b.rootDepth || 0);
+            const candidates = [];
+
+            candidates.push({ value: a.value + b.value, expr: `(${a.expr} + ${b.expr})`, rootDepth: maxDepth });
+            candidates.push({ value: a.value - b.value, expr: `(${a.expr} - ${b.expr})`, rootDepth: maxDepth });
+            candidates.push({ value: b.value - a.value, expr: `(${b.expr} - ${a.expr})`, rootDepth: maxDepth });
+            candidates.push({ value: a.value * b.value, expr: `(${a.expr} \\times ${b.expr})`, rootDepth: maxDepth });
+
+            if (Math.abs(b.value) > EPSILON)
+              candidates.push({ value: a.value / b.value, expr: `\\frac{${a.expr}}{${b.expr}}`, rootDepth: maxDepth });
+            if (Math.abs(a.value) > EPSILON)
+              candidates.push({ value: b.value / a.value, expr: `\\frac{${b.expr}}{${a.expr}}`, rootDepth: maxDepth });
+
+            if (isSafeExponent(a.value, b.value))
+              candidates.push({ value: Math.pow(a.value, b.value), expr: `${a.expr}^{${b.expr}}`, rootDepth: maxDepth });
+            if (isSafeExponent(b.value, a.value))
+              candidates.push({ value: Math.pow(b.value, a.value), expr: `${b.expr}^{${a.expr}}`, rootDepth: maxDepth });
+
+            candidates.push(...applyNthRoots(a, b));
+            candidates.push(...applyNthRoots(b, a));
+
+            for (const c of candidates) {
+              if (!isFinite(c.value)) continue;
+              dfs([...rest, c], target, solutions, memo, best);
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  function getPermutations(array) {
+    if (array.length <= 1) return [array];
+    const result = [];
+    const used = new Set();
+    for (let i = 0; i < array.length; i++) {
+      if (used.has(array[i])) continue;
+      used.add(array[i]);
+      const rest = array.slice(0, i).concat(array.slice(i + 1));
+      for (const p of getPermutations(rest)) {
+        result.push([array[i], ...p]);
+      }
+    }
+    return result;
+  }
+
+  function copyLatex(expr) {
+    const textArea = document.createElement("textarea");
+    textArea.value = `\\(${expr.replace(/\\\\/g, '\\')}\\)`;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+  }
+
+  function solve() {
+    const raw = document.getElementById('numbers').value.trim();
+    let nums = [];
+
+    if (raw.includes(',') || raw.includes(' '))
+      nums = raw.replace(/,/g, ' ').split(/\s+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+    else
+      nums = raw.split('').map(x => parseInt(x)).filter(x => !isNaN(x));
+
+    const target = parseFloat(document.getElementById('target').value);
+
+    if (nums.length < 4 || nums.length > 5 || isNaN(target)) {
+      alert("Please enter 4 or 5 numbers and a valid target.");
+      return;
+    }
+
+    if ((nums.length === 4 && (target < 10 || target > 99)) ||
+        (nums.length === 5 && (target < 100 || target > 999))) {
+      alert("Target must be 2 digits (10–99) for 4 numbers or 3 digits (100–999) for 5 numbers.");
+      return;
+    }
+
+    const solutions = new Set();
+    const memo = new Set();
+    const best = { diff: Infinity, expr: "" };
+
+    const permutations = getPermutations(nums);
+    for (const perm of permutations) {
+      const nodes = perm.map(n => ({ value: n, expr: n.toString(), rootDepth: 0 }));
+      dfs(nodes, target, solutions, memo, best);
+    }
+
+    const resultsDiv = document.getElementById("results");
+    if (solutions.size > 0) {
+      let html = `<p><strong>${solutions.size} exact solution${solutions.size > 1 ? 's' : ''} found:</strong></p>`;
+      let index = 0;
+      for (const solution of solutions) {
+        html += `
+          <div class="expr-box" role="region" aria-label="Exact solution ${index + 1}">
+            <div id="expr${index}">\\(${solution}\\)</div>
+            <button onclick="copyLatex('${solution.replace(/\\/g, '\\\\')}')" aria-label="Copy LaTeX for solution ${index + 1}">Copy</button>
+          </div>`;
+        index++;
+      }
+      resultsDiv.innerHTML = html;
+    } else {
+      resultsDiv.innerHTML = `
+        <p><strong>No exact match found. Best approximation:</strong></p>
+        <div class="expr-box" role="region" aria-label="Best approximate solution">
+          <div id="expr0">\\(${best.expr}\\)</div>
+          <button onclick="copyLatex('${best.expr.replace(/\\/g, '\\\\')}')" aria-label="Copy LaTeX">Copy</button>
+        </div>`;
+    }
+
+    MathJax.typesetPromise();
+  }
+</script>
+</body>
+</html>
