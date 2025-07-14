@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Playlist Template</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f4f6f8;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px;
+      background-color: #2c3e50;
+      color: white;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .video-panel {
+      width: 65%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .video-panel iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .playlist-panel {
+      width: 35%;
+      background-color: #ffffff;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      border-left: 1px solid #ddd;
+    }
+
+    .group {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .group h2 {
+      margin: 0;
+      padding: 14px 16px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+    }
+
+    .group h2::after {
+      content: '▼';
+      font-size: 0.9rem;
+      transition: transform 0.3s ease;
+    }
+
+    .group.collapsed h2::after {
+      transform: rotate(-90deg);
+    }
+
+    .video-list {
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .group.collapsed .video-list {
+      max-height: 0;
+      padding: 0 16px;
+    }
+
+    .video-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .video-item button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #ecf0f1;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .video-item button:hover {
+      background-color: #d0e6f7;
+    }
+
+    .video-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    YouTube Playlist Template
+  </header>
+  <main>
+    <div class="video-panel">
+      <iframe id="mainVideo" src="https://www.youtube.com/embed/6vex86Iq6Oo" allowfullscreen></iframe>
+    </div>
+    <aside class="playlist-panel" id="playlistPanel">
+      <!-- Groups will be generated here -->
+    </aside>
+  </main>
+
+  <script>
+    const playlistData = [
+      {
+        id: "group1",
+        title: "Group 1: Music",
+        videos: [
+          { id: "6vex86Iq6Oo", title: "Video 1" },
+          { id: "dQw4w9WgXcQ", title: "Video 2" }
+        ]
+      },
+      {
+        id: "group2",
+        title: "Group 2: Tutorials",
+        videos: [
+          { id: "M7lc1UVf-VE", title: "Video 3" },
+          { id: "kXYiU_JCYtU", title: "Video 4" }
+        ]
+      },
+      {
+        id: "group3",
+        title: "Group 3: Extras",
+        videos: [
+          { id: "3JZ_D3ELwOQ", title: "Video 5" },
+          { id: "L_jWHffIx5E", title: "Video 6" }
+        ]
+      }
+    ];
+
+    function changeVideo(id) {
+      document.getElementById("mainVideo").src = `https://www.youtube.com/embed/${id}`;
+    }
+
+    function createPlaylistUI() {
+      const container = document.getElementById("playlistPanel");
+
+      playlistData.forEach(group => {
+        const groupEl = document.createElement("div");
+        groupEl.classList.add("group");
+        groupEl.id = group.id;
+
+        const header = document.createElement("h2");
+        header.innerHTML = group.title;
+        groupEl.appendChild(header);
+
+        const list = document.createElement("div");
+        list.classList.add("video-list");
+
+        group.videos.forEach((video, index) => {
+          const item = document.createElement("div");
+          item.classList.add("video-item");
+
+          const button = document.createElement("button");
+          button.textContent = video.title;
+          button.onclick = () => changeVideo(video.id);
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `${group.id}-v${index}`;
+
+          // Restore checkbox state from localStorage
+          const saved = localStorage.getItem(checkbox.id);
+          if (saved === "true") checkbox.checked = true;
+
+          // Save state on change
+          checkbox.addEventListener("change", () => {
+            localStorage.setItem(checkbox.id, checkbox.checked);
+          });
+
+          item.appendChild(button);
+          item.appendChild(checkbox);
+          list.appendChild(item);
+        });
+
+        groupEl.appendChild(list);
+        container.appendChild(groupEl);
+
+        // Collapse toggle with restore
+        const collapsed = localStorage.getItem(group.id + "-collapsed") === "true";
+        if (collapsed) groupEl.classList.add("collapsed");
+
+        header.addEventListener("click", () => {
+          groupEl.classList.toggle("collapsed");
+          localStorage.setItem(group.id + "-collapsed", groupEl.classList.contains("collapsed"));
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", createPlaylistUI);
+  </script>
+</body>
+</html>
