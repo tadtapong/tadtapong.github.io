@@ -1,4 +1,4 @@
-// DOM Elements
+// DOM Elements (cached)
 const qrTextInput = document.getElementById('qrText');
 const fgColorInput = document.getElementById('fgColor');
 const bgColorInput = document.getElementById('bgColor');
@@ -6,96 +6,131 @@ const qrSizeSelect = document.getElementById('qrSize');
 const downloadBtn = document.getElementById('downloadBtn');
 const qrcodeContainer = document.getElementById('qrcode');
 
-let qrCode;
+let qrCodeInstance = null;
+let lastConfig = { text: '', size: null, fg: '', bg: '' };
 
-// Function to generate the QR Code
-const generateQRCode = () => {
-    // Clear the previous QR Code
-    qrcodeContainer.innerHTML = '';
-
-    // Get values from the inputs
-    const text = qrTextInput.value;
-    const size = parseInt(qrSizeSelect.value);
-    const fgColor = fgColorInput.value;
-    const bgColor = bgColorInput.value;
-
-    if (!text) {
-        alert("Please enter some text or a URL.");
-        return;
-    }
-
-    // Create a new QRCode instance
-    qrCode = new QRCode(qrcodeContainer, {
-        text: text,
-        width: size,
-        height: size,
-        colorDark: fgColor,
-        colorLight: bgColor,
-        correctLevel: QRCode.CorrectLevel.H
-    });
+// Small debounce utility
+const debounce = (fn, wait = 250) => {
+    let t = null;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+    };
 };
 
-// --- IMPROVED DOWNLOAD FUNCTION ---
-const handleDownload = async () => {
-    // The QR library may render either an <img> or a <canvas> inside #qrcode.
-    const imgElement = qrcodeContainer.querySelector('img');
-    const canvasElement = qrcodeContainer.querySelector('canvas');
+// Validate text - simple check to avoid empty QR codes
+const isValidText = (s) => typeof s === 'string' && s.trim().length > 0;
 
-    if (!imgElement && !canvasElement) {
-        alert('Generate a QR code first before downloading.');
+// Build configuration from DOM
+const readConfig = () => ({
+    text: qrTextInput.value || '',
+    size: parseInt(qrSizeSelect.value, 10) || 256,
+    fg: fgColorInput.value || '#000000',
+    bg: bgColorInput.value || '#FFFFFF'
+});
+
+// Create or update the QR code
+const renderQRCode = () => {
+    const cfg = readConfig();
+
+    if (!isValidText(cfg.text)) {
+        qrcodeContainer.innerHTML = '<p style="color:#888">Enter text or URL to generate QR code</p>';
+        qrCodeInstance = null;
+        lastConfig = cfg;
+        downloadBtn.disabled = true;
         return;
     }
 
-    // Border (padding) around the QR code in pixels
-    const borderSize = 20;
+    downloadBtn.disabled = false;
 
-    // Helper to export a provided image-like source into a new PNG with background
-    const exportToPng = (sourceWidth, sourceHeight, drawCallback) => {
-        const newWidth = sourceWidth + borderSize * 2;
-        const newHeight = sourceHeight + borderSize * 2;
-        const outCanvas = document.createElement('canvas');
-        outCanvas.width = newWidth;
-        outCanvas.height = newHeight;
-        const outCtx = outCanvas.getContext('2d');
+    // If an instance exists and only the text changed, use makeCode (faster)
+    const onlyTextChanged = qrCodeInstance && lastConfig.size === cfg.size && lastConfig.fg === cfg.fg && lastConfig.bg === cfg.bg;
 
-        // Fill background explicitly so transparent pixels don't appear black in some viewers
-        outCtx.fillStyle = bgColorInput.value || '#FFFFFF';
-        outCtx.fillRect(0, 0, newWidth, newHeight);
+    if (qrCodeInstance && onlyTextChanged) {
+        try {
+            // QRCode.js exposes makeCode which updates the code quickly
+            if (typeof qrCodeInstance.makeCode === 'function') {
+                qrCodeInstance.makeCode(cfg.text);
+            } else {
+                // Fallback: recreate
+                qrcodeContainer.innerHTML = '';
+                qrCodeInstance = new QRCode(qrcodeContainer, {
+                    text: cfg.text,
+                    width: cfg.size,
+                    height: cfg.size,
+                    colorDark: cfg.fg,
+                    colorLight: cfg.bg,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        } catch (e) {
+            console.error('QR update failed, recreating', e);
+            qrcodeContainer.innerHTML = '';
+            qrCodeInstance = null;
+            renderQRCode();
+            return;
+        }
+    } else {
+        // Recreate QR with new options
+        qrcodeContainer.innerHTML = '';
+        qrCodeInstance = new QRCode(qrcodeContainer, {
+            text: cfg.text,
+            width: cfg.size,
+            height: cfg.size,
+            colorDark: cfg.fg,
+            colorLight: cfg.bg,
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
 
-        // Let caller draw the QR content at (borderSize, borderSize)
-        drawCallback(outCtx, borderSize, borderSize, sourceWidth, sourceHeight);
+    lastConfig = cfg;
+};
 
-        return outCanvas.toDataURL('image/png');
+// Debounced renderer for input events
+const debouncedRender = debounce(renderQRCode, 200);
+
+// Robust download: handle both canvas and img outputs, add padding and background
+const handleDownload = async () => {
+    const img = qrcodeContainer.querySelector('img');
+    const canvas = qrcodeContainer.querySelector('canvas');
+
+    if (!img && !canvas) {
+        alert('Please generate a QR code first.');
+        return;
+    }
+
+    // Padding around QR in pixels
+    const padding = 20;
+    const bg = (bgColorInput.value || '#FFFFFF');
+
+    const exportCanvas = (w, h, draw) => {
+        const out = document.createElement('canvas');
+        out.width = w + padding * 2;
+        out.height = h + padding * 2;
+        const ctx = out.getContext('2d');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, out.width, out.height);
+        draw(ctx, padding, padding, w, h);
+        return out.toDataURL('image/png');
     };
 
     let dataUrl;
-
-    if (canvasElement) {
-        // If the library produced a canvas, draw it onto our output
-        const srcW = canvasElement.width;
-        const srcH = canvasElement.height;
-        dataUrl = exportToPng(srcW, srcH, (ctx, x, y) => {
-            ctx.drawImage(canvasElement, x, y, srcW, srcH);
+    if (canvas) {
+        dataUrl = exportCanvas(canvas.width, canvas.height, (ctx, x, y, w, h) => {
+            ctx.drawImage(canvas, x, y, w, h);
         });
     } else {
-        // If we have an <img>, ensure it's loaded and then draw it at the right size.
         await new Promise((resolve, reject) => {
-            if (imgElement.complete && imgElement.naturalWidth !== 0) return resolve();
-            imgElement.addEventListener('load', resolve);
-            imgElement.addEventListener('error', () => reject(new Error('Failed to load QR image')));
+            if (img.complete && img.naturalWidth !== 0) return resolve();
+            img.addEventListener('load', resolve);
+            img.addEventListener('error', () => reject(new Error('Image failed to load')));
         });
 
-        // Some browsers may scale the displayed image via CSS. Use naturalWidth/naturalHeight.
-        const srcW = imgElement.naturalWidth || parseInt(qrSizeSelect.value);
-        const srcH = imgElement.naturalHeight || parseInt(qrSizeSelect.value);
-
-        dataUrl = exportToPng(srcW, srcH, (ctx, x, y, w, h) => {
-            // Draw the image at its natural pixel size to preserve clarity
-            ctx.drawImage(imgElement, x, y, w, h);
-        });
+        const w = img.naturalWidth || lastConfig.size || 256;
+        const h = img.naturalHeight || lastConfig.size || 256;
+        dataUrl = exportCanvas(w, h, (ctx, x, y) => ctx.drawImage(img, x, y, w, h));
     }
 
-    // Trigger download
     const link = document.createElement('a');
     link.href = dataUrl;
     link.download = 'qrcode.png';
@@ -104,12 +139,12 @@ const handleDownload = async () => {
     document.body.removeChild(link);
 };
 
-// Event Listeners for real-time updates
-qrTextInput.addEventListener('input', generateQRCode);
-fgColorInput.addEventListener('input', generateQRCode);
-bgColorInput.addEventListener('input', generateQRCode);
-qrSizeSelect.addEventListener('change', generateQRCode);
+// Event wiring
+qrTextInput.addEventListener('input', debouncedRender);
+fgColorInput.addEventListener('input', renderQRCode);
+bgColorInput.addEventListener('input', renderQRCode);
+qrSizeSelect.addEventListener('change', renderQRCode);
 downloadBtn.addEventListener('click', handleDownload);
 
-// Initial QR Code generation on page load
-generateQRCode();
+// Initialize
+renderQRCode();
