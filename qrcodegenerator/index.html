@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Code Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>QR Code Generator</h1>
+    <label for="text">Text or URL</label>
+    <input id="text" type="text" placeholder="Enter text or URL" />
+
+    <label for="size">Size</label>
+    <input id="size" type="range" min="100" max="600" value="200" />
+
+    <label for="color">Color</label>
+    <input id="color" type="color" value="#000000" />
+
+    <label for="bg">Background</label>
+    <input id="bg" type="color" value="#ffffff" />
+
+    <button id="generate">Generate</button>
+
+    <div id="qr"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
