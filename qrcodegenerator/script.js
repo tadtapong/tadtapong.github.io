@@ -1,27 +1,67 @@
-/* Simple QR code generator using Google Chart API */
+// DOM Elements
+const qrTextInput = document.getElementById('qrText');
+const fgColorInput = document.getElementById('fgColor');
+const bgColorInput = document.getElementById('bgColor');
+const qrSizeSelect = document.getElementById('qrSize');
+const downloadBtn = document.getElementById('downloadBtn');
+const qrcodeContainer = document.getElementById('qrcode');
 
-const textInput = document.getElementById('text');
-const sizeInput = document.getElementById('size');
-const colorInput = document.getElementById('color');
-const bgInput = document.getElementById('bg');
-const generateBtn = document.getElementById('generate');
-const qrDiv = document.getElementById('qr');
+let qrCode;
 
-function generateQR() {
-  const text = encodeURIComponent(textInput.value.trim() || 'Hello World');
-  const size = parseInt(sizeInput.value, 10) || 200;
-  const color = colorInput.value.replace('#', '');
-  const bg = bgInput.value.replace('#', '');
+// Function to generate the QR Code
+const generateQRCode = () => {
+    // Clear the previous QR Code
+    qrcodeContainer.innerHTML = '';
 
-  const url = `https://chart.googleapis.com/chart?cht=qr&chs=${size}x${size}&chl=${text}&chco=${color}&chf=bg,s,${bg}`;
+    // Get values from the inputs
+    const text = qrTextInput.value;
+    const size = parseInt(qrSizeSelect.value);
+    const fgColor = fgColorInput.value;
+    const bgColor = bgColorInput.value;
 
-  qrDiv.innerHTML = '';
-  const img = document.createElement('img');
-  img.src = url;
-  img.alt = 'QR Code';
-  qrDiv.appendChild(img);
-}
+    // Basic validation
+    if (!text) {
+        alert("Please enter some text or a URL.");
+        return;
+    }
 
-generateBtn.addEventListener('click', generateQR);
-// generate at start
-window.addEventListener('DOMContentLoaded', generateQR);
+    // Create a new QRCode instance
+    qrCode = new QRCode(qrcodeContainer, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: fgColor,
+        colorLight: bgColor,
+        correctLevel: QRCode.CorrectLevel.H // High correction level
+    });
+};
+
+// Function to handle the download
+const handleDownload = () => {
+    // Find the generated img element
+    const imgElement = qrcodeContainer.querySelector('img');
+
+    if (imgElement) {
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = imgElement.src;
+        link.download = 'qrcode.png';
+
+        // Trigger the download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        alert("Generate a QR code first before downloading.");
+    }
+};
+
+// Event Listeners for real-time updates
+qrTextInput.addEventListener('input', generateQRCode);
+fgColorInput.addEventListener('input', generateQRCode);
+bgColorInput.addEventListener('input', generateQRCode);
+qrSizeSelect.addEventListener('change', generateQRCode);
+downloadBtn.addEventListener('click', handleDownload);
+
+// Initial QR Code generation on page load
+generateQRCode();

@@ -1,31 +1,53 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QR Code Generator</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Creator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <main>
-    <h1>QR Code Generator</h1>
-    <label for="text">Text or URL</label>
-    <input id="text" type="text" placeholder="Enter text or URL" />
 
-    <label for="size">Size</label>
-    <input id="size" type="range" min="100" max="600" value="200" />
+    <div class="container">
+        <div class="form-container">
+            <h1>QR Code Creator</h1>
+            <p>Enter your URL or text below to instantly generate a QR code.</p>
 
-    <label for="color">Color</label>
-    <input id="color" type="color" value="#000000" />
+            <label for="qrText">Text or URL</label>
+            <input type="text" id="qrText" placeholder="e.g., https://www.google.com" value="https://www.google.com">
 
-    <label for="bg">Background</label>
-    <input id="bg" type="color" value="#ffffff" />
+            <div class="options">
+                <div class="option">
+                    <label for="fgColor">Foreground</label>
+                    <input type="color" id="fgColor" value="#000000">
+                </div>
+                <div class="option">
+                    <label for="bgColor">Background</label>
+                    <input type="color" id="bgColor" value="#FFFFFF">
+                </div>
+                <div class="option">
+                    <label for="qrSize">Size</label>
+                    <select id="qrSize">
+                        <option value="256" selected>256x256</option>
+                        <option value="384">384x384</option>
+                        <option value="512">512x512</option>
+                    </select>
+                </div>
+            </div>
+            <button id="downloadBtn">Download QR Code</button>
+        </div>
+        <div class="qr-container">
+            <div id="qrcode"></div>
+        </div>
+    </div>
 
-    <button id="generate">Generate</button>
-
-    <div id="qr"></div>
-  </main>
-
-  <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>
