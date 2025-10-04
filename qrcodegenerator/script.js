@@ -35,39 +35,70 @@ const generateQRCode = () => {
     });
 };
 
-// --- MODIFIED DOWNLOAD FUNCTION ---
-const handleDownload = () => {
+// --- IMPROVED DOWNLOAD FUNCTION ---
+const handleDownload = async () => {
+    // The QR library may render either an <img> or a <canvas> inside #qrcode.
     const imgElement = qrcodeContainer.querySelector('img');
+    const canvasElement = qrcodeContainer.querySelector('canvas');
 
-    if (!imgElement) {
-        alert("Generate a QR code first before downloading.");
+    if (!imgElement && !canvasElement) {
+        alert('Generate a QR code first before downloading.');
         return;
     }
 
-    // Define the border size (padding)
-    const borderSize = 20; // 20 pixels of padding on each side
-    const originalSize = parseInt(qrSizeSelect.value);
-    const newSize = originalSize + borderSize * 2;
+    // Border (padding) around the QR code in pixels
+    const borderSize = 20;
 
-    // Create a new canvas
-    const canvas = document.createElement('canvas');
-    canvas.width = newSize;
-    canvas.height = newSize;
-    const ctx = canvas.getContext('2d');
+    // Helper to export a provided image-like source into a new PNG with background
+    const exportToPng = (sourceWidth, sourceHeight, drawCallback) => {
+        const newWidth = sourceWidth + borderSize * 2;
+        const newHeight = sourceHeight + borderSize * 2;
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = newWidth;
+        outCanvas.height = newHeight;
+        const outCtx = outCanvas.getContext('2d');
 
-    // 1. Fill the canvas with the background color (this creates the border)
-    ctx.fillStyle = bgColorInput.value;
-    ctx.fillRect(0, 0, newSize, newSize);
+        // Fill background explicitly so transparent pixels don't appear black in some viewers
+        outCtx.fillStyle = bgColorInput.value || '#FFFFFF';
+        outCtx.fillRect(0, 0, newWidth, newHeight);
 
-    // 2. Draw the QR code image onto the center of the canvas
-    ctx.drawImage(imgElement, borderSize, borderSize);
+        // Let caller draw the QR content at (borderSize, borderSize)
+        drawCallback(outCtx, borderSize, borderSize, sourceWidth, sourceHeight);
 
-    // 3. Create a download link from the new canvas data
+        return outCanvas.toDataURL('image/png');
+    };
+
+    let dataUrl;
+
+    if (canvasElement) {
+        // If the library produced a canvas, draw it onto our output
+        const srcW = canvasElement.width;
+        const srcH = canvasElement.height;
+        dataUrl = exportToPng(srcW, srcH, (ctx, x, y) => {
+            ctx.drawImage(canvasElement, x, y, srcW, srcH);
+        });
+    } else {
+        // If we have an <img>, ensure it's loaded and then draw it at the right size.
+        await new Promise((resolve, reject) => {
+            if (imgElement.complete && imgElement.naturalWidth !== 0) return resolve();
+            imgElement.addEventListener('load', resolve);
+            imgElement.addEventListener('error', () => reject(new Error('Failed to load QR image')));
+        });
+
+        // Some browsers may scale the displayed image via CSS. Use naturalWidth/naturalHeight.
+        const srcW = imgElement.naturalWidth || parseInt(qrSizeSelect.value);
+        const srcH = imgElement.naturalHeight || parseInt(qrSizeSelect.value);
+
+        dataUrl = exportToPng(srcW, srcH, (ctx, x, y, w, h) => {
+            // Draw the image at its natural pixel size to preserve clarity
+            ctx.drawImage(imgElement, x, y, w, h);
+        });
+    }
+
+    // Trigger download
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png'); // Get data URL from the canvas
+    link.href = dataUrl;
     link.download = 'qrcode.png';
-
-    // Trigger the download
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
