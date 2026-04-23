@@ -6,82 +6,8 @@
   <title>Portfolio — Your Name</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
   <style>
-    /* ─── TOKENS ──────────────────────────────────────────── */
-    :root {
-      --bg:        #F5F3EE;
-      --surface:   #EDEAE2;
-      --ink:       #1A1814;
-      --muted:     #7A7570;
-      --accent:    #C4602A;
-      --border:    #D8D4CC;
-
-      --serif:     'DM Serif Display', Georgia, serif;
-      --mono:      'DM Mono', 'Courier New', monospace;
-
-      --gap:       clamp(2rem, 5vw, 5rem);
-      --radius:    4px;
-      --transition: 200ms ease;
-    }
-
-    /* ─── RESET ───────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--mono);
-      font-size: clamp(13px, 1.4vw, 15px);
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; text-decoration: none; }
-    img { display: block; width: 100%; }
-    ul { list-style: none; }
-
-    /* ─── LAYOUT ──────────────────────────────────────────── */
-    .container {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 clamp(1.25rem, 5vw, 2.5rem);
-    }
-
-    section { padding: var(--gap) 0; border-top: 1px solid var(--border); }
-    section:first-of-type { border-top: none; }
-
-    /* ─── NAV ─────────────────────────────────────────────── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
-    nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 1rem;
-      padding-bottom: 1rem;
-    }
-    .nav-logo {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      letter-spacing: 0.01em;
-    }
-    .nav-links {
-      display: flex;
-      gap: 2rem;
-    }
-    .nav-links a {
-      color: var(--muted);
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      transition: color var(--transition);
-    }
-    .nav-links a:hover { color: var(--ink); }
-
     /* ─── HERO ────────────────────────────────────────────── */
     #hero {
       padding: clamp(4rem, 12vw, 9rem) 0 var(--gap);
@@ -122,33 +48,11 @@
     .hero-cta .arrow { transition: transform var(--transition); }
     .hero-cta:hover .arrow { transform: translateX(4px); }
 
-    /* ─── SECTION HEADING ─────────────────────────────────── */
-    .section-heading {
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    .section-heading h2 {
-      font-family: var(--serif);
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 400;
-    }
-    .section-heading .count {
-      font-size: 0.75rem;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-    }
-
     /* ─── PROJECTS ────────────────────────────────────────── */
-    /*
-      To ADD a project: copy one <article class="project-card"> block
-      inside <div class="projects-grid"> and update the text/link.
-    */
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
-      gap: 1.5px;          /* tight grid-line gap */
+      gap: 1.5px;
       background: var(--border);
       border: 1px solid var(--border);
     }
@@ -160,7 +64,6 @@
       gap: 0.75rem;
       cursor: pointer;
       transition: background var(--transition);
-      position: relative;
     }
     .project-card:hover { background: var(--surface); }
     .project-tag {
@@ -201,10 +104,6 @@
     .project-card:hover .project-link { opacity: 1; }
 
     /* ─── SKILLS ──────────────────────────────────────────── */
-    /*
-      To ADD a skill category: copy one <div class="skill-group"> block.
-      To ADD a skill tag: copy one <span class="tag"> inside any group.
-    */
     .skills-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -217,22 +116,9 @@
       color: var(--accent);
       margin-bottom: 0.9rem;
     }
-    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .tag {
-      border: 1px solid var(--border);
-      padding: 0.3rem 0.75rem;
-      font-size: 0.78rem;
-      border-radius: var(--radius);
-      color: var(--muted);
-      transition: border-color var(--transition), color var(--transition);
-    }
-    .tag:hover { border-color: var(--ink); color: var(--ink); }
 
     /* ─── EXPERIENCE ──────────────────────────────────────── */
-    /*
-      To ADD a role: copy one <li class="exp-item"> block.
-    */
-    .exp-list { display: flex; flex-direction: column; gap: 0; }
+    .exp-list { display: flex; flex-direction: column; }
     .exp-item {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -241,11 +127,7 @@
       border-bottom: 1px solid var(--border);
     }
     .exp-item:first-child { border-top: 1px solid var(--border); }
-    .exp-period {
-      font-size: 0.78rem;
-      color: var(--muted);
-      padding-top: 0.2rem;
-    }
+    .exp-period { font-size: 0.78rem; color: var(--muted); padding-top: 0.2rem; }
     .exp-role { font-family: var(--serif); font-size: 1.15rem; font-weight: 400; }
     .exp-company { color: var(--accent); font-size: 0.85rem; margin: 0.2rem 0 0.5rem; }
     .exp-desc { color: var(--muted); font-size: 0.84rem; line-height: 1.75; }
@@ -278,29 +160,9 @@
     }
     .contact-link:hover { color: var(--ink); }
 
-    /* ─── FOOTER ──────────────────────────────────────────── */
-    footer .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 1.5rem;
-      padding-bottom: 1.5rem;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    /* ─── ANIMATIONS ──────────────────────────────────────── */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity 0.55s ease, transform 0.55s ease;
-    }
-    .fade-in.visible { opacity: 1; transform: none; }
-
     /* ─── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 580px) {
       .exp-item { grid-template-columns: 1fr; }
-      .nav-links { gap: 1.2rem; }
       .contact-links { align-items: flex-start; }
     }
   </style>
@@ -352,7 +214,20 @@
       </div>
       <div class="projects-grid">
 
-        <article class="project-card fade-in" onclick="location.href='Project/courses/index.html'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://aero-project.netlify.app/','_blank')" style="cursor:pointer;">
+          <span class="project-tag">Formula Student · Aerodynamics</span>
+          <h3 class="project-title">Aero Package Design</h3>
+          <p class="project-desc">
+            Designed the full aerodynamic package — front wing, rear wing, and diffuser —
+            with CFD validation and a focus on maximising downforce within the FS ruleset.
+          </p>
+          <div class="project-footer">
+            <span>2025</span>
+            <a class="project-link" href="https://your-aero-site.com" target="_blank" rel="noopener noreferrer">View project →</a>
+          </div>
+        </article>
+
+        <article class="project-card fade-in" onclick="window.open('https://your-courses-site.com','_blank')" style="cursor:pointer;">
           <span class="project-tag">Education</span>
           <h3 class="project-title">Courses</h3>
           <p class="project-desc">
@@ -361,11 +236,11 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="Project/courses/index.html">View project →</a>
+            <a class="project-link" href="https://your-courses-site.com" target="_blank" rel="noopener noreferrer">View project →</a>
           </div>
         </article>
 
-        <article class="project-card fade-in" onclick="location.href='Project/fastmath/index.html'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://your-fastmath-site.com','_blank')" style="cursor:pointer;">
           <span class="project-tag">Math Tool</span>
           <h3 class="project-title">FastMath Solver</h3>
           <p class="project-desc">
@@ -374,11 +249,11 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="Project/fastmath/index.html">View project →</a>
+            <a class="project-link" href="https://your-fastmath-site.com" target="_blank" rel="noopener noreferrer">View project →</a>
           </div>
         </article>
 
-        <article class="project-card fade-in" onclick="location.href='Project/qrcodegenerator/index.html'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://your-qrcode-site.com','_blank')" style="cursor:pointer;">
           <span class="project-tag">Utility</span>
           <h3 class="project-title">QR Code Generator</h3>
           <p class="project-desc">
@@ -387,9 +262,27 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="Project/qrcodegenerator/index.html">View project →</a>
+            <a class="project-link" href="https://your-qrcode-site.com" target="_blank" rel="noopener noreferrer">View project →</a>
           </div>
         </article>
+
+        <!--
+          ── ADD A PROJECT CARD ────────────────────────────────
+          Copy this block, paste above, and fill in your details.
+          target="_blank" opens in a new tab.
+          rel="noopener noreferrer" is a security best practice for _blank links.
+        -->
+        <!-- <article class="project-card fade-in" onclick="window.open('https://example.com','_blank')" style="cursor:pointer;">
+          <span class="project-tag">Category · Subcategory</span>
+          <h3 class="project-title">Project Title</h3>
+          <p class="project-desc">
+            Short description of what this project is and what makes it interesting.
+          </p>
+          <div class="project-footer">
+            <span>2025</span>
+            <a class="project-link" href="https://example.com" target="_blank" rel="noopener noreferrer">Visit site →</a>
+          </div>
+        </article> -->
 
       </div><!-- /.projects-grid -->
     </div>
