@@ -1,0 +1,144 @@
+================================================================
+  STYLE GUIDE — Portfolio Theme (Tadtapong Chuenchumsaeng)
+================================================================
+Use this as a reference to replicate the same look and feel
+on future websites.
+
+----------------------------------------------------------------
+OVERALL AESTHETIC
+----------------------------------------------------------------
+- Minimal, editorial, warm-neutral design
+- Inspired by print / typographic portfolios
+- Clean whitespace, no decorative graphics
+- Monospaced body text gives a technical / engineering feel
+- Serif headings add elegance and contrast
+
+----------------------------------------------------------------
+COLOR PALETTE
+----------------------------------------------------------------
+Variable        Hex       Usage
+--bg            #F5F3EE   Page background (warm off-white)
+--surface       #EDEAE2   Card / panel background (slightly darker)
+--ink           #1A1814   Primary text (near-black, warm tone)
+--muted         #7A7570   Secondary / supporting text
+--accent        #C4602A   Highlight color, links, tags (burnt orange)
+--border        #D8D4CC   Dividers, outlines, card borders
+
+----------------------------------------------------------------
+TYPOGRAPHY
+----------------------------------------------------------------
+Fonts (Google Fonts):
+  - DM Serif Display  → headings, logo, large display text
+  - DM Mono           → body text, labels, buttons, nav links
+
+CSS Variables:
+  --serif:  'DM Serif Display', Georgia, serif
+  --mono:   'DM Mono', 'Courier New', monospace
+
+Font sizes:
+  - Base body:    clamp(13px, 1.4vw, 15px)
+  - Small labels: 0.72rem – 0.78rem, uppercase, letter-spacing 0.08–0.12em
+  - Body text:    0.84rem – 0.9rem, line-height 1.7 – 1.85
+  - Section h2:   clamp(1.6rem, 4vw, 2.4rem), font-weight 400
+  - Hero h1:      clamp(2.8rem, 8vw, 6rem), line-height 1.05
+  - Contact h2:   clamp(2rem, 6vw, 4rem)
+
+Typography rules:
+  - Headings use font-weight 400 (not bold) for an editorial feel
+  - Italic text in headings uses --muted color for soft contrast
+  - Labels / categories are UPPERCASE with wide letter-spacing
+  - Accent color (#C4602A) used for category tags and labels
+
+----------------------------------------------------------------
+SPACING & LAYOUT
+----------------------------------------------------------------
+- Max content width: 860px, centered with auto margins
+- Horizontal padding: clamp(1.25rem, 5vw, 2.5rem)
+- Section vertical padding: clamp(2rem, 5vw, 5rem)  → var(--gap)
+- Sections separated by a 1px border-top (--border color)
+- Border radius: 4px (--radius) — subtle, not pill-shaped
+
+----------------------------------------------------------------
+NAVIGATION
+----------------------------------------------------------------
+- Sticky top nav, background matches --bg
+- Bottom border: 1px solid --border
+- Logo: DM Serif Display, 1.1rem
+- Nav links: DM Mono, 0.8rem, uppercase, letter-spacing 0.08em
+- Link color: --muted by default, transitions to --ink on hover
+- Transition: 200ms ease
+
+----------------------------------------------------------------
+COMPONENTS
+----------------------------------------------------------------
+
+BUTTONS (.btn / .hero-cta)
+  - Transparent background, 1px solid --ink border
+  - DM Mono font, 0.8rem, letter-spacing 0.05em
+  - Hover: background fills to --ink, text becomes --bg
+  - Variant .btn-accent: --accent background, same hover behavior
+  - Arrow icon shifts 4px right on hover (translateX)
+
+TAGS (.tag)
+  - Border: 1px solid --border
+  - Padding: 0.3rem 0.75rem
+  - Font: 0.78rem, color --muted
+  - Hover: border and text color shift to --ink
+
+CARDS (.card / .project-card)
+  - Background: --bg
+  - Border: 1px solid --border
+  - Padding: 2rem
+  - Hover: background shifts to --surface
+  - Project cards use a CSS grid with 1.5px gap (gap acts as border)
+  - Grid background set to --border to create visible grid lines
+
+SECTION HEADINGS (.section-heading)
+  - Flex row, baseline aligned
+  - h2 in DM Serif Display, font-weight 400
+  - Optional .count label in 0.75rem --muted text
+  - Margin-bottom: 2.5rem
+
+FORM ELEMENTS
+  - Background: --surface
+  - Border: 1px solid --border, focus shifts to --ink
+  - Font: DM Mono, 0.9rem
+  - Labels: uppercase, 0.75rem, --muted, letter-spacing 0.08em
+
+FOOTER
+  - Flex row, space-between
+  - Font: 0.75rem, --muted
+  - Border-top: 1px solid --border
+
+----------------------------------------------------------------
+ANIMATIONS
+----------------------------------------------------------------
+- Fade-in on scroll using IntersectionObserver
+- Elements start: opacity 0, translateY(18px)
+- Transition: opacity 0.55s ease, transform 0.55s ease
+- Siblings stagger with 60ms delay between each
+- Threshold: 0.12 (triggers when 12% of element is visible)
+- Class .fade-in → add .visible to trigger animation
+
+----------------------------------------------------------------
+RESPONSIVE BREAKPOINTS
+----------------------------------------------------------------
+- Main breakpoint: max-width 580px
+  - Nav links gap reduces to 1rem
+  - Experience grid collapses to single column
+  - Contact links align to flex-start
+
+----------------------------------------------------------------
+HOW TO REUSE THIS THEME
+----------------------------------------------------------------
+1. Copy theme.css into your new project as-is.
+2. Add Google Fonts link in <head>:
+   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+3. Use CSS variables (--bg, --ink, --accent, etc.) for all colors.
+4. Use .container for centered content blocks.
+5. Use .fade-in + IntersectionObserver script for scroll animations.
+6. Sections get border-top automatically; first section overrides to none.
+7. Adjust --accent color to brand the site differently while keeping
+   the same structural feel.
+
+================================================================
