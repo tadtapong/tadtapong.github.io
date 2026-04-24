@@ -4,7 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Portfolio — Tadtapong Chuenchumsaeng</title>
+  <meta name="description" content="Portfolio of Tadtapong Chuenchumsaeng — engineering student specialising in computer hardware design, automotive aerodynamics, and CFD simulation.">
+  <meta property="og:title" content="Portfolio — Tadtapong Chuenchumsaeng">
+  <meta property="og:description" content="Engineering student passionate about computer hardware design, automotive aerodynamics, and CFD simulation.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://tadtapong.vercel.app/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="theme.css">
   <style>
@@ -42,6 +48,7 @@
       font-family: var(--mono);
       font-size: 0.8rem;
       letter-spacing: 0.05em;
+      border-radius: var(--radius);
       transition: background var(--transition), color var(--transition);
     }
     .hero-cta:hover { background: var(--ink); color: var(--bg); }
@@ -66,6 +73,7 @@
       transition: background var(--transition);
     }
     .project-card:hover { background: var(--surface); }
+    .project-card:focus { outline: 2px solid var(--accent); outline-offset: -2px; background: var(--surface); }
     .project-tag {
       font-size: 0.7rem;
       letter-spacing: 0.1em;
@@ -215,7 +223,7 @@
       </div>
       <div class="projects-grid">
 
-        <article class="project-card fade-in" onclick="window.location.href='https://aero-korn.vercel.app/'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://aero-korn.vercel.app/','_blank')" tabindex="0" onkeydown="if(event.key==='Enter')window.open('https://aero-korn.vercel.app/','_blank')">
           <span class="project-tag">Formula Student · Aerodynamics</span>
           <h3 class="project-title">Aero Package Design</h3>
           <p class="project-desc">
@@ -224,11 +232,11 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="https://aero-korn.vercel.app/">View project →</a>
+            <a class="project-link" href="https://aero-korn.vercel.app/" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1">View project →</a>
           </div>
         </article>
 
-        <article class="project-card fade-in" onclick="window.location.href='https://courses-korn.vercel.app/'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://courses-korn.vercel.app/','_blank')" tabindex="0" onkeydown="if(event.key==='Enter')window.open('https://courses-korn.vercel.app/','_blank')">
           <span class="project-tag">Education</span>
           <h3 class="project-title">Courses</h3>
           <p class="project-desc">
@@ -237,11 +245,11 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="https://courses-korn.vercel.app/">View project →</a>
+            <a class="project-link" href="https://courses-korn.vercel.app/" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1">View project →</a>
           </div>
         </article>
 
-        <article class="project-card fade-in" onclick="window.location.href='https://fastmath-korn.vercel.app/'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://fastmath-korn.vercel.app/','_blank')" tabindex="0" onkeydown="if(event.key==='Enter')window.open('https://fastmath-korn.vercel.app/','_blank')">
           <span class="project-tag">Math Tool</span>
           <h3 class="project-title">FastMath Solver</h3>
           <p class="project-desc">
@@ -250,11 +258,11 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="https://fastmath-korn.vercel.app/">View project →</a>
+            <a class="project-link" href="https://fastmath-korn.vercel.app/" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1">View project →</a>
           </div>
         </article>
 
-        <article class="project-card fade-in" onclick="window.location.href='https://qr-korn.vercel.app/'" style="cursor:pointer;">
+        <article class="project-card fade-in" onclick="window.open('https://qr-korn.vercel.app/','_blank')" tabindex="0" onkeydown="if(event.key==='Enter')window.open('https://qr-korn.vercel.app/','_blank')">
           <span class="project-tag">Utility</span>
           <h3 class="project-title">QR Code Generator</h3>
           <p class="project-desc">
@@ -263,15 +271,17 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="https://qr-korn.vercel.app/">View project →</a>
+            <a class="project-link" href="https://qr-korn.vercel.app/" target="_blank" rel="noopener noreferrer" aria-hidden="true" tabindex="-1">View project →</a>
           </div>
         </article>
 
         <!--
           ── ADD A PROJECT CARD ────────────────────────────────
           Copy this block, paste above, and fill in your details.
+          target="_blank" opens in a new tab.
+          rel="noopener noreferrer" is a security best practice for _blank links.
         -->
-        <!-- <article class="project-card fade-in" onclick="window.location.href='https://example.com'" style="cursor:pointer;">
+        <!-- <article class="project-card fade-in" onclick="window.open('https://example.com','_blank')" style="cursor:pointer;">
           <span class="project-tag">Category · Subcategory</span>
           <h3 class="project-title">Project Title</h3>
           <p class="project-desc">
@@ -279,7 +289,7 @@
           </p>
           <div class="project-footer">
             <span>2025</span>
-            <a class="project-link" href="https://example.com">Visit site →</a>
+            <a class="project-link" href="https://example.com" target="_blank" rel="noopener noreferrer">Visit site →</a>
           </div>
         </article> -->
 
@@ -384,8 +394,8 @@
         </div>
         <div class="contact-links fade-in">
           <a class="contact-link" href="mailto:6832083321@student.chula.ac.th">6832083321@student.chula.ac.th →</a>
-          <a class="contact-link" href="https://www.linkedin.com/in/tadtapong-chuenchumsaeng/" target="_blank">LinkedIn →</a>
-          <a class="contact-link" href="https://github.com/tadtapong" target="_blank">GitHub →</a>
+          <a class="contact-link" href="https://www.linkedin.com/in/tadtapong-chuenchumsaeng/" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
+          <a class="contact-link" href="https://github.com/tadtapong" target="_blank" rel="noopener noreferrer">GitHub →</a>
           <a class="contact-link" href="/resume.pdf" target="_blank">Resume (PDF) →</a>
         </div>
       </div>
